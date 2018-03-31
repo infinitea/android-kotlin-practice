@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import com.xavier.newsfeed.R
 import com.xavier.newsfeed.dummy.DummyContent
 import com.xavier.newsfeed.model.NewsItem
-import com.xavier.newsfeed.ui.NewsItemFrameDecoration
 import com.xavier.newsfeed.ui.NewsRecyclerViewAdapter
 
 /**
