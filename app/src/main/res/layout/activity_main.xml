@@ -24,8 +24,7 @@
             android:textColor="@android:color/white"/>
     </android.support.v7.widget.Toolbar>
 
-    <fragment
-        android:name="com.xavier.newsfeed.fragments.NewsItemFragment"
+    <FrameLayout
         android:id="@+id/main_fragment"
         android:layout_width="0dp"
         android:layout_height="0dp"

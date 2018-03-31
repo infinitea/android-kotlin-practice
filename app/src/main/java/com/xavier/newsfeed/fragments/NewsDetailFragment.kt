@@ -39,7 +39,7 @@ class NewsDetailFragment : Fragment() {
 
   override fun onAttach(context: Context?) {
     super.onAttach(context)
-    if (context != null && context is Activity) {
+    if (context != null && context is Activity && context.currentFocus != null) {
       val inputMethodManager = context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
       inputMethodManager.hideSoftInputFromWindow(context.currentFocus.windowToken, 0)
     }

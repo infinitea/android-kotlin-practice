@@ -8,35 +8,44 @@
             type="com.xavier.newsfeed.model.NewsItem"
             />
     </data>
-    <ScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:background="@color/news_detail_background"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/news_item_margin"
         >
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="@dimen/news_item_image_width"
+            android:layout_height="@dimen/news_item_image_height"
+            android:layout_alignParentLeft="true"
+            android:scaleType="centerInside"
+            app:imageUrl="@{newsItem.urlToImage}"
+            />
+
+        <ImageView
+            android:id="@+id/proceed_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_chevron_right_black_24dp"
+            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginHorizontal="@dimen/news_item_margin"
+            android:layout_toLeftOf="@id/proceed_icon"
+            android:layout_toRightOf="@id/image"
             android:orientation="vertical"
             >
-
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/news_detail_image_height"
-                android:scaleType="centerInside"
-                app:imageUrl="@{newsItem.urlToImage}"
-                />
-
             <TextView
                 android:id="@+id/title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/news_item_text_margin"
                 android:maxLines="1"
-                android:paddingHorizontal="@dimen/news_item_margin_horizontal"
                 android:text="@{newsItem.title}"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/news_item_title_font_size"
@@ -47,8 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/news_item_text_margin"
-                android:maxLines="2"
-                android:paddingHorizontal="@dimen/news_item_margin_horizontal"
+                android:maxLines="3"
                 android:text="@{newsItem.description}"
                 android:textColor="@color/textColorDescription"
                 android:textSize="@dimen/news_item_description_font_size"
@@ -60,11 +68,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/news_item_text_margin"
                 android:maxLines="1"
-                android:paddingHorizontal="@dimen/news_item_margin_horizontal"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/news_item_date_font_size"
                 app:date="@{newsItem.publishedAt}"
                 />
         </LinearLayout>
-    </ScrollView>
+    </RelativeLayout>
 </layout>
