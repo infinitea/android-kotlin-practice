@@ -5,6 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context="com.xavier.newsfeed.fragments.NewsItemFragment"
     >
 
@@ -14,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@color/search_view_background"
-        android:iconifiedByDefault="true"
+        android:iconifiedByDefault="false"
         />
 
     <android.support.v4.widget.SwipeRefreshLayout

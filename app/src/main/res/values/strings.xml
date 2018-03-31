@@ -2,4 +2,5 @@
     <string name="app_name">NewsFeed</string>
     <string name="news_list_title">News</string>
     <string name="news_list_loading_error">Something went wrong, pull down to refresh</string>
+    <string name="updated_at_placeholder">Updated: %s</string>
 </resources>

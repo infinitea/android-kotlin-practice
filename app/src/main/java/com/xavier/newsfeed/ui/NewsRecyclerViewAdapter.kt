@@ -1,38 +1,11 @@
 package com.xavier.newsfeed.ui
 
-import android.databinding.BindingAdapter
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import com.squareup.picasso.Picasso
-import com.xavier.newsfeed.R
 import com.xavier.newsfeed.databinding.FragmentNewsItemBinding
 import com.xavier.newsfeed.fragments.NewsItemFragment.OnListFragmentInteractionListener
 import com.xavier.newsfeed.model.NewsItem
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
-
-@BindingAdapter("imageUrl")
-fun loadImage(imageView: ImageView, url: String) {
-  Picasso.get().load(url).placeholder(R.drawable.ic_image_black_24dp).into(imageView)
-//  val builder = Picasso.Builder(imageView.context)
-//  builder.listener { picasso, uri, exception ->  exception.printStackTrace()}
-//
-//  builder.build().load(uri)
-}
-
-@BindingAdapter("date")
-fun setDate(dateView: TextView, dateString: String) {
-  val df1 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-  df1.timeZone = TimeZone.getTimeZone("UTC")
-
-  val date = df1.parse(dateString)
-  dateView.text = DateFormat.getDateTimeInstance().format(date)
-}
 
 /**
  * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
