@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:background="@color/search_view_background"
         android:iconifiedByDefault="true"
         />
 
@@ -22,12 +23,25 @@
         android:layout_height="match_parent"
         android:layout_below="@id/search_view"
         >
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/list"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/fragment_news_item"
-            />
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/news_list_loading_error"
+                android:textAlignment="center"
+                android:visibility="invisible"
+                />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager"
+                tools:listitem="@layout/fragment_news_item"
+                />
+        </RelativeLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

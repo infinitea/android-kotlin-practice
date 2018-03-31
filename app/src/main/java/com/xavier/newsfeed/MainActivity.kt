@@ -16,7 +16,6 @@ class MainActivity : FragmentActivity(), NewsItemFragment.OnListFragmentInteract
     setContentView(R.layout.activity_main)
 
     toolbar.setTitle(R.string.news_list_title)
-    supportFragmentManager.beginTransaction().replace(R.id.main_fragment, NewsItemFragment.newInstance(1)).commit()
 
   }
 }
