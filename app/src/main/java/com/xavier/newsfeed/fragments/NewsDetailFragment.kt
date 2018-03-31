@@ -24,9 +24,7 @@ class NewsDetailFragment : Fragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    if (arguments != null) {
-      mNews = arguments.getSerializable(ARG_NEWS_ITEM) as NewsItem?
-    }
+    mNews = arguments?.getSerializable(ARG_NEWS_ITEM) as NewsItem?
   }
 
   override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -39,7 +37,7 @@ class NewsDetailFragment : Fragment() {
 
   override fun onAttach(context: Context?) {
     super.onAttach(context)
-    if (context != null && context is Activity && context.currentFocus != null) {
+    if (context is Activity && context.currentFocus != null) {
       val inputMethodManager = context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
       inputMethodManager.hideSoftInputFromWindow(context.currentFocus.windowToken, 0)
     }

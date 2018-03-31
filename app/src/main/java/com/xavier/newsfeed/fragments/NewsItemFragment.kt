@@ -13,8 +13,6 @@ import com.xavier.newsfeed.R
 import com.xavier.newsfeed.dummy.DummyContent
 import com.xavier.newsfeed.model.NewsItem
 import com.xavier.newsfeed.ui.NewsRecyclerViewAdapter
-import kotlinx.android.synthetic.main.fragment_news_item_list.*
-import kotlinx.android.synthetic.main.fragment_news_item_list.view.*
 
 /**
  * A fragment representing a list of Items.
@@ -35,9 +33,8 @@ class NewsItemFragment : Fragment() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    if (arguments != null) {
-      mColumnCount = arguments.getInt(ARG_COLUMN_COUNT)
-    }
+    mColumnCount = arguments?.getInt(ARG_COLUMN_COUNT) ?: 1
+
   }
 
   override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {

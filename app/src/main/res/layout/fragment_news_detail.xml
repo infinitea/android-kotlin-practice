@@ -11,10 +11,10 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/news_detail_background"
         android:clickable="true"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:background="@color/news_detail_background"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,7 +58,7 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/news_item_text_margin"
+                android:layout_marginVertical="@dimen/news_item_text_margin"
                 android:maxLines="1"
                 android:paddingHorizontal="@dimen/news_item_margin_horizontal"
                 android:textColor="@color/colorPrimaryDark"
