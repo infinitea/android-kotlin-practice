@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/news_item_margin"
+        android:background="@drawable/news_item_frame"
         >
 
         <ImageView
@@ -35,7 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginHorizontal="@dimen/news_item_margin"
+            android:layout_marginLeft="@dimen/news_item_margin"
+            android:layout_marginRight="@dimen/news_item_margin"
             android:layout_toLeftOf="@id/proceed_icon"
             android:layout_toRightOf="@id/image"
             android:orientation="vertical"
@@ -67,6 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/news_item_text_margin"
+                android:layout_marginBottom="@dimen/news_item_text_margin"
                 android:maxLines="1"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/news_item_date_font_size"
