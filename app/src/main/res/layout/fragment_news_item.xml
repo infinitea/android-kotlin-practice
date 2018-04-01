@@ -46,6 +46,7 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/news_item_description_font_size"
             android:textColor="@color/textColorDescription"
+            android:ellipsize="end"
             android:maxLines="2"
             android:text="@{newsItem.description}"
             />
