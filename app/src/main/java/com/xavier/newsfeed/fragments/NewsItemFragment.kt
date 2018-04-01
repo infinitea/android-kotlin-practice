@@ -95,7 +95,7 @@ class NewsItemFragment : Fragment() {
             list.visibility = View.VISIBLE
             newsResponse = response
             refresh_layout.isRefreshing = false
-            list.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener)
+            list.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener, newsResponse.nextPage.isNotEmpty())
           },
           { _ ->
             error_view.visibility = View.VISIBLE
@@ -110,6 +110,7 @@ class NewsItemFragment : Fragment() {
             list.visibility = View.VISIBLE
             newsResponse.news.addAll(response.news)
             newsResponse.nextPage = response.nextPage
+            (list.adapter as NewsRecyclerViewAdapter).displayLoading = newsResponse.nextPage.isNotEmpty()
             list.adapter.notifyDataSetChanged()
           },
           { _ ->
