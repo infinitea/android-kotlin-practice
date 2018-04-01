@@ -32,11 +32,13 @@ class NewsDetailFragment : Fragment() {
     itemBinding.newsItem = mNews
     itemBinding.executePendingBindings()
 
+    itemBinding.root.requestFocus()
     return itemBinding.root
   }
 
   override fun onAttach(context: Context?) {
     super.onAttach(context)
+
     if (context is Activity && context.currentFocus != null) {
       val inputMethodManager = context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
       inputMethodManager.hideSoftInputFromWindow(context.currentFocus.windowToken, 0)
