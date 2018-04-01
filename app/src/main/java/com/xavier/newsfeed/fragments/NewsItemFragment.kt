@@ -3,16 +3,19 @@ package com.xavier.newsfeed.fragments
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.xavier.newsfeed.NewsFeedService
 import com.xavier.newsfeed.R
-import com.xavier.newsfeed.dummy.DummyContent
 import com.xavier.newsfeed.model.NewsItem
+import com.xavier.newsfeed.model.NewsResponse
 import com.xavier.newsfeed.ui.NewsRecyclerViewAdapter
+import kotlinx.android.synthetic.main.fragment_news_item_list.*
 
 /**
  * A fragment representing a list of Items.
@@ -30,27 +33,90 @@ class NewsItemFragment : Fragment() {
   private var mColumnCount = 1
   private var mListener: OnListFragmentInteractionListener? = null
 
+  private var newsResponse: NewsResponse = NewsResponse()
+
+  private var recyclerView: RecyclerView? = null
+  private var refreshLayout: SwipeRefreshLayout? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
     mColumnCount = arguments?.getInt(ARG_COLUMN_COUNT) ?: 1
-
   }
 
-  override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-    val view = inflater!!.inflate(R.layout.fragment_news_item_list, container, false)
-    val recyclerView = view.findViewById<RecyclerView>(R.id.list)
-    // Set the adapter
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    val view = inflater.inflate(R.layout.fragment_news_item_list, container, false)
+    recyclerView = view.findViewById(R.id.list)
     val context = view.context
     if (mColumnCount <= 1) {
-      recyclerView.layoutManager = LinearLayoutManager(context)
+      recyclerView?.layoutManager = LinearLayoutManager(context)
     } else {
-      recyclerView.layoutManager = GridLayoutManager(context, mColumnCount)
+      recyclerView?.layoutManager = GridLayoutManager(context, mColumnCount)
     }
-//    recyclerView.addItemDecoration(NewsItemFrameDecoration(20, resources.getColor(R.color.colorPrimary)))
-    recyclerView.adapter = NewsRecyclerViewAdapter(DummyContent.ITEMS, mListener)
+
+    recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+      var lastVisibleItem: Int? = 0
+      override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+        super.onScrollStateChanged(recyclerView, newState)
+        if (newsResponse.nextPage.isNotEmpty() && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView?.adapter?.itemCount) {
+          startRequestNewsFeed(newsResponse.nextPage)
+        }
+      }
+
+      override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+        super.onScrolled(recyclerView, dx, dy)
+        val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
+        lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+      }
+    })
+
+    refreshLayout = view.findViewById(R.id.refresh_layout)
+    refreshLayout?.setOnRefreshListener { startRequestNewsFeed(null) }
+
+    if (savedInstanceState != null) {
+      newsResponse = savedInstanceState.getSerializable(STATE_NEWS_DATA) as NewsResponse
+      var scrolledPosition = savedInstanceState.getInt(STATE_CURRENT_SCROLL_POSITION, 0)
+      recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener)
+      recyclerView?.scrollToPosition(scrolledPosition)
+    } else {
+      startRequestNewsFeed(null)
+    }
 
     return view
+  }
+
+  private fun startRequestNewsFeed(url: String?) {
+    if (url == null) {
+      refreshLayout?.isRefreshing = true
+      NewsResponse.getNews(
+          NewsFeedService.NEWS_FEED_URL,
+          { response ->
+            error_view.visibility = View.INVISIBLE
+            list.visibility = View.VISIBLE
+            newsResponse = response
+            refresh_layout.isRefreshing = false
+            list.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener)
+          },
+          { _ ->
+            error_view.visibility = View.VISIBLE
+            list.visibility = View.INVISIBLE
+            refresh_layout.isRefreshing = false
+          })
+    } else {
+      NewsResponse.getNews(
+          url,
+          { response ->
+            error_view.visibility = View.INVISIBLE
+            list.visibility = View.VISIBLE
+            newsResponse.news.addAll(response.news)
+            newsResponse.nextPage = response.nextPage
+            list.adapter.notifyDataSetChanged()
+          },
+          { _ ->
+            error_view.visibility = View.VISIBLE
+            list.visibility = View.INVISIBLE
+          })
+    }
   }
 
   override fun onAttach(context: Context?) {
@@ -65,6 +131,13 @@ class NewsItemFragment : Fragment() {
   override fun onDetach() {
     super.onDetach()
     mListener = null
+  }
+
+
+  override fun onSaveInstanceState(outState: Bundle) {
+    super.onSaveInstanceState(outState)
+    outState.putSerializable(STATE_NEWS_DATA, newsResponse)
+    outState.putInt(STATE_CURRENT_SCROLL_POSITION, (recyclerView?.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition())
   }
 
   /**
@@ -82,9 +155,10 @@ class NewsItemFragment : Fragment() {
   }
 
   companion object {
-
     // TODO: Customize parameter argument names
     private val ARG_COLUMN_COUNT = "column-count"
+    val STATE_NEWS_DATA = "news-data"
+    val STATE_CURRENT_SCROLL_POSITION = "current-position"
 
     // TODO: Customize parameter initialization
     fun newInstance(columnCount: Int): NewsItemFragment {

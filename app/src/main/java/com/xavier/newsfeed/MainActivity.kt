@@ -2,11 +2,16 @@ package com.xavier.newsfeed
 
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
-import android.util.Log
 import com.xavier.newsfeed.fragments.NewsDetailFragment
 import com.xavier.newsfeed.fragments.NewsItemFragment
 import com.xavier.newsfeed.model.NewsItem
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
+
+val newsFeedService by lazy {
+  NewsFeedService.create()
+}
+var disposable: Disposable? = null
 
 class MainActivity : FragmentActivity(), NewsItemFragment.OnListFragmentInteractionListener {
 

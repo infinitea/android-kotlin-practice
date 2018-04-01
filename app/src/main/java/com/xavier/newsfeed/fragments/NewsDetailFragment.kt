@@ -27,8 +27,8 @@ class NewsDetailFragment : Fragment() {
     mNews = arguments?.getSerializable(ARG_NEWS_ITEM) as NewsItem?
   }
 
-  override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-    val itemBinding = FragmentNewsDetailBinding.inflate(LayoutInflater.from(context), container, false)
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    val itemBinding = FragmentNewsDetailBinding.inflate(inflater, container, false)
     itemBinding.newsItem = mNews
     itemBinding.executePendingBindings()
 
