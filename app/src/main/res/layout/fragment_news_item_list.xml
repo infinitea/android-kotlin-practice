@@ -10,13 +10,14 @@
     tools:context="com.xavier.newsfeed.fragments.NewsItemFragment"
     >
 
-    <SearchView
+    <android.support.v7.widget.SearchView
         android:id="@+id/search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@color/search_view_background"
-        android:iconifiedByDefault="false"
+        android:paddingBottom="@dimen/news_item_text_margin"
+        app:iconifiedByDefault="false"
         />
 
     <android.support.v4.widget.SwipeRefreshLayout

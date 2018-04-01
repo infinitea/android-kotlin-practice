@@ -11,8 +11,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/news_item_margin"
         android:background="@drawable/news_item_frame"
+        android:padding="@dimen/news_item_margin"
         >
 
         <ImageView
@@ -58,6 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/news_item_text_margin"
+                android:ellipsize="end"
                 android:maxLines="3"
                 android:text="@{newsItem.description}"
                 android:textColor="@color/textColorDescription"
@@ -68,8 +69,8 @@
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/news_item_text_margin"
                 android:layout_marginBottom="@dimen/news_item_text_margin"
+                android:layout_marginTop="@dimen/news_item_text_margin"
                 android:maxLines="1"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/news_item_date_font_size"

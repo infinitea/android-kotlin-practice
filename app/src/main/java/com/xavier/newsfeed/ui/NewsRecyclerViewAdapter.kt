@@ -14,7 +14,7 @@ import com.xavier.newsfeed.model.NewsItem
  * specified [OnListFragmentInteractionListener].
  * TODO: Replace the implementation with code for your data type.
  */
-class NewsRecyclerViewAdapter(private val mValues: List<NewsItem>,
+class NewsRecyclerViewAdapter(private var mValues: List<NewsItem>,
     private val mListener: OnListFragmentInteractionListener?,
     var displayLoading: Boolean = false) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -23,16 +23,13 @@ class NewsRecyclerViewAdapter(private val mValues: List<NewsItem>,
   }
 
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-    when (viewType) {
-      ViewType.NEWS.ordinal -> {
-        val itemBinding = FragmentNewsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(itemBinding)
-      }
+    return when (viewType) {
       ViewType.LOADING.ordinal -> {
-        return LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_news_item_loading, parent, false))
+        LoadingViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.fragment_news_item_loading, parent, false))
       }
       else -> {
-        return LoadingViewHolder(View(parent.context))
+        val itemBinding = FragmentNewsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        ViewHolder(itemBinding)
       }
     }
   }
@@ -58,10 +55,15 @@ class NewsRecyclerViewAdapter(private val mValues: List<NewsItem>,
     return mValues.size + (if (displayLoading) 1 else 0)
   }
 
+  fun updateItemsAndNotifyChange(newList: List<NewsItem>) {
+    mValues = newList
+    notifyDataSetChanged()
+  }
+
   inner class ViewHolder(val mBinding: FragmentNewsItemBinding) : RecyclerView.ViewHolder(mBinding.root) {
     var mView = mBinding.root
     var mItem: NewsItem? = null
   }
 
-  inner class LoadingViewHolder(mView: View): RecyclerView.ViewHolder(mView)
+  inner class LoadingViewHolder(mView: View) : RecyclerView.ViewHolder(mView)
 }

@@ -7,6 +7,7 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,8 @@ class NewsItemFragment : Fragment() {
 
   private var recyclerView: RecyclerView? = null
   private var refreshLayout: SwipeRefreshLayout? = null
+  private var searchView: SearchView? = null
+  private var inSearchMode: Boolean = false
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -58,8 +61,8 @@ class NewsItemFragment : Fragment() {
       var lastVisibleItem: Int? = 0
       override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
         super.onScrollStateChanged(recyclerView, newState)
-        if (newsResponse.nextPage.isNotEmpty() && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView?.adapter?.itemCount) {
-          startRequestNewsFeed(newsResponse.nextPage)
+        if ((recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView?.adapter?.itemCount) {
+            startRequestNewsFeed(newsResponse.nextPage)
         }
       }
 
@@ -76,46 +79,73 @@ class NewsItemFragment : Fragment() {
     if (savedInstanceState != null) {
       newsResponse = savedInstanceState.getSerializable(STATE_NEWS_DATA) as NewsResponse
       var scrolledPosition = savedInstanceState.getInt(STATE_CURRENT_SCROLL_POSITION, 0)
-      recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener)
+      recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.displayNews, mListener)
       recyclerView?.scrollToPosition(scrolledPosition)
     } else {
       startRequestNewsFeed(null)
     }
 
+    searchView = view.findViewById(R.id.search_view)
+    searchView?.isEnabled = false
+    searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+      override fun onQueryTextSubmit(query: String?): Boolean {
+        updateSearchText(query)
+        return false
+      }
+
+      override fun onQueryTextChange(newText: String?): Boolean {
+        updateSearchText(newText)
+        return false
+      }
+    })
+
     return view
   }
 
+  private fun updateSearchText(text: String?) {
+    if (newsResponse.filterNewsIfChanged(text ?: "")) {
+      inSearchMode = newsResponse.filterString.isNotEmpty()
+      refreshLayout?.isEnabled = !inSearchMode
+      (recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading = !inSearchMode && newsResponse.nextPage.isNotEmpty()
+      (recyclerView?.adapter as NewsRecyclerViewAdapter).updateItemsAndNotifyChange(newsResponse.displayNews)
+    }
+  }
+
   private fun startRequestNewsFeed(url: String?) {
+    searchView?.isEnabled = false
     if (url == null) {
       refreshLayout?.isRefreshing = true
       NewsResponse.getNews(
           NewsFeedService.NEWS_FEED_URL,
           { response ->
             error_view.visibility = View.INVISIBLE
-            list.visibility = View.VISIBLE
-            newsResponse = response
-            refresh_layout.isRefreshing = false
-            list.adapter = NewsRecyclerViewAdapter(newsResponse.news, mListener, newsResponse.nextPage.isNotEmpty())
+            recyclerView?.visibility = View.VISIBLE
+            refreshLayout?.isRefreshing = false
+            newsResponse = NewsResponse(response.nextPage, response.news)
+            recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.displayNews, mListener, !inSearchMode && newsResponse.nextPage.isNotEmpty())
+            searchView?.isEnabled = true
           },
           { _ ->
             error_view.visibility = View.VISIBLE
-            list.visibility = View.INVISIBLE
-            refresh_layout.isRefreshing = false
+            recyclerView?.visibility = View.INVISIBLE
+            refreshLayout?.isRefreshing = false
           })
     } else {
       NewsResponse.getNews(
           url,
           { response ->
             error_view.visibility = View.INVISIBLE
-            list.visibility = View.VISIBLE
+            recyclerView?.visibility = View.VISIBLE
             newsResponse.news.addAll(response.news)
             newsResponse.nextPage = response.nextPage
-            (list.adapter as NewsRecyclerViewAdapter).displayLoading = newsResponse.nextPage.isNotEmpty()
-            list.adapter.notifyDataSetChanged()
+            newsResponse.filterNews()
+            (recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading = !inSearchMode && newsResponse.nextPage.isNotEmpty()
+            (recyclerView?.adapter as NewsRecyclerViewAdapter).updateItemsAndNotifyChange(newsResponse.displayNews)
+            searchView?.isEnabled = true
           },
           { _ ->
             error_view.visibility = View.VISIBLE
-            list.visibility = View.INVISIBLE
+            recyclerView?.visibility = View.INVISIBLE
           })
     }
   }
