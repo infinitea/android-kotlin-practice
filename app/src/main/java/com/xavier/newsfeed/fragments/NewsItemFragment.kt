@@ -9,6 +9,7 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +51,7 @@ class NewsItemFragment : Fragment() {
     var lastVisibleItem: Int? = 0
     override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
       super.onScrollStateChanged(recyclerView, newState)
+      Log.d("TEST", "onScrollStateChanged state = " + newState)
       if ((recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView.adapter?.itemCount) {
         startRequestNewsFeed(newsResponse.nextPage)
       }
@@ -57,6 +59,7 @@ class NewsItemFragment : Fragment() {
 
     override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
       super.onScrolled(recyclerView, dx, dy)
+      Log.d("TEST", "onScrolled x y = " + dx + " " + dy)
       val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
       lastVisibleItem = layoutManager.findLastVisibleItemPosition()
     }
