@@ -36,9 +36,14 @@ data class NewsResponse(var nextPage: String = "", var news: MutableList<NewsIte
 
   companion object {
     fun getNews(url: String, successCallback: (NewsResponse) -> Unit, errorCallback: (Throwable) -> Unit) {
+      EspressoIdlingResource.increment()
       disposable = newsFeedService.getNewsFeed(url).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
-          { result -> successCallback(result) },
-          { error -> errorCallback(error) }
+          { result ->
+            successCallback(result)
+            EspressoIdlingResource.decrement() },
+          { error ->
+            errorCallback(error)
+            EspressoIdlingResource.decrement() }
       )
     }
   }

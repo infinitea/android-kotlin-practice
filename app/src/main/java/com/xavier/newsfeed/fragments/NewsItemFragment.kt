@@ -2,6 +2,7 @@ package com.xavier.newsfeed.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.support.annotation.VisibleForTesting
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.GridLayoutManager
@@ -34,12 +35,33 @@ class NewsItemFragment : Fragment() {
   private var mColumnCount = 1
   private var mListener: OnListFragmentInteractionListener? = null
 
-  private var newsResponse: NewsResponse = NewsResponse()
+  @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+  var newsResponse: NewsResponse = NewsResponse()
+  @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+  var recyclerView: RecyclerView? = null
+  @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+  var refreshLayout: SwipeRefreshLayout? = null
+  @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+  var searchView: SearchView? = null
 
-  private var recyclerView: RecyclerView? = null
-  private var refreshLayout: SwipeRefreshLayout? = null
-  private var searchView: SearchView? = null
   private var inSearchMode: Boolean = false
+
+  private var scrollListener = object : RecyclerView.OnScrollListener() {
+    var lastVisibleItem: Int? = 0
+    override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+      super.onScrollStateChanged(recyclerView, newState)
+      if ((recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView.adapter?.itemCount) {
+        startRequestNewsFeed(newsResponse.nextPage)
+      }
+    }
+
+    override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+      super.onScrolled(recyclerView, dx, dy)
+      val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
+      lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+    }
+  }
+
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -56,22 +78,6 @@ class NewsItemFragment : Fragment() {
     } else {
       recyclerView?.layoutManager = GridLayoutManager(context, mColumnCount)
     }
-
-    recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-      var lastVisibleItem: Int? = 0
-      override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
-        super.onScrollStateChanged(recyclerView, newState)
-        if ((recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView?.adapter?.itemCount) {
-            startRequestNewsFeed(newsResponse.nextPage)
-        }
-      }
-
-      override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-        super.onScrolled(recyclerView, dx, dy)
-        val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
-        lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-      }
-    })
 
     refreshLayout = view.findViewById(R.id.refresh_layout)
     refreshLayout?.setOnRefreshListener { startRequestNewsFeed(null) }
@@ -115,6 +121,7 @@ class NewsItemFragment : Fragment() {
     searchView?.isEnabled = false
     if (url == null) {
       refreshLayout?.isRefreshing = true
+      recyclerView?.removeOnScrollListener(scrollListener)
       NewsResponse.getNews(
           NewsFeedService.NEWS_FEED_URL,
           { response ->
@@ -124,6 +131,7 @@ class NewsItemFragment : Fragment() {
             newsResponse = NewsResponse(response.nextPage, response.news)
             recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.displayNews, mListener, !inSearchMode && newsResponse.nextPage.isNotEmpty())
             searchView?.isEnabled = true
+            recyclerView?.addOnScrollListener(scrollListener)
           },
           { _ ->
             error_view.visibility = View.VISIBLE
