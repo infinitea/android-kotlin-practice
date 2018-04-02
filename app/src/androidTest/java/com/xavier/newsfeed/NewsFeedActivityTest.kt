@@ -1,6 +1,7 @@
 package com.xavier.newsfeed
 
 import android.support.test.espresso.Espresso.onView
+import android.support.test.espresso.Espresso.pressBack
 import android.support.test.espresso.IdlingRegistry
 import android.support.test.espresso.action.ViewActions
 import android.support.test.espresso.assertion.ViewAssertions.matches
@@ -12,6 +13,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import com.xavier.newsfeed.fragments.NewsItemFragment
 import com.xavier.newsfeed.model.EspressoIdlingResource
+import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Before
@@ -67,15 +69,36 @@ class NewsFeedActivityTest {
     var fragment: NewsItemFragment? = mActivityRule.activity.supportFragmentManager.findFragmentByTag("NewsItemFragment") as NewsItemFragment
     if (fragment == null || fragment.recyclerView?.visibility != View.VISIBLE) return
 
-    for (i in 0..2) {
-      var itemCount = fragment.recyclerView?.layoutManager?.itemCount
-      assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
-      if (itemCount != null) {
-        for (j in 0..7) {
-          onView(withId(R.id.list)).perform(ViewActions.swipeUp())
-          Thread.sleep(500)
-        }
+    var itemCount = fragment.recyclerView?.layoutManager?.itemCount
+    assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
+      for (j in 0..6) {
+        onView(withId(R.id.list)).perform(ViewActions.swipeUp())
+        Thread.sleep(600)
       }
+
+    itemCount = fragment.recyclerView?.layoutManager?.itemCount
+    assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
+  }
+
+  @Test
+  fun checkDisplayDetail() {
+    var fragment: NewsItemFragment? = mActivityRule.activity.supportFragmentManager.findFragmentByTag("NewsItemFragment") as NewsItemFragment
+    if (fragment == null || fragment.recyclerView?.visibility != View.VISIBLE) return
+
+    Thread.sleep(500)
+    val random = Random()
+    var itemCount = fragment.recyclerView?.layoutManager?.itemCount
+    if (itemCount == null || itemCount == 0) return
+    for (i in 0..4) {
+      Thread.sleep(300)
+      var itemIndex = random.nextInt(itemCount - 1)
+      var newsItem = fragment.newsResponse.displayNews.get(itemIndex)
+
+      onView(withId(R.id.list)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(itemIndex, ViewActions.click()))
+      Thread.sleep(300)
+      onView(allOf(withParent(withId(R.id.detail_root)), withId(R.id.title), isDisplayed())).check(matches(withText(newsItem.title)))
+      onView(allOf(withParent(withId(R.id.detail_root)), withId(R.id.description), isDisplayed())).check(matches(withText(newsItem.description)))
+      pressBack()
     }
   }
 }
