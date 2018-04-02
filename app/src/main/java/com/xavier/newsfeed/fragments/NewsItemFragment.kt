@@ -71,6 +71,13 @@ class NewsItemFragment : Fragment() {
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
     val view = inflater.inflate(R.layout.fragment_news_item_list, container, false)
+    return view
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    list.adapter
+    error_view.visibility = View.INVISIBLE
     recyclerView = view.findViewById(R.id.list)
     val context = view.context
     if (mColumnCount <= 1) {
@@ -104,8 +111,6 @@ class NewsItemFragment : Fragment() {
         return false
       }
     })
-
-    return view
   }
 
   private fun updateSearchText(text: String?) {

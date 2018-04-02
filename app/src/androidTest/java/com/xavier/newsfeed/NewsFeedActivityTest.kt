@@ -9,7 +9,7 @@ import android.support.test.runner.AndroidJUnit4
 import android.view.View
 import com.xavier.newsfeed.fragments.NewsItemFragment
 import com.xavier.newsfeed.model.EspressoIdlingResource
-import junit.framework.Assert
+import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -63,10 +63,7 @@ class NewsFeedActivityTest {
     var fragment: NewsItemFragment? = mActivityRule.activity.supportFragmentManager.findFragmentByTag("NewsItemFragment") as NewsItemFragment
     if (fragment != null && fragment.recyclerView?.visibility == View.VISIBLE) {
       var itemCount = fragment.recyclerView?.layoutManager?.itemCount
-//      assertThat(true, )
-//      Assert.assertTrue("size is not same ",
-//          itemCount == fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0)
-//      Assert.assertTrue("size is not same ", itemCount == fragment.newsResponse.displayNews.size)
+      assertThat(itemCount, equalTo(fragment.recyclerView?.layoutManager?.itemCount))
     }
   }
 }
