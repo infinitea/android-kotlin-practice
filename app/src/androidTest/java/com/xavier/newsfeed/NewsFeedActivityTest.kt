@@ -69,15 +69,17 @@ class NewsFeedActivityTest {
     var fragment: NewsItemFragment? = mActivityRule.activity.supportFragmentManager.findFragmentByTag("NewsItemFragment") as NewsItemFragment
     if (fragment == null || fragment.recyclerView?.visibility != View.VISIBLE) return
 
-    var itemCount = fragment.recyclerView?.layoutManager?.itemCount
-    assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
-      for (j in 0..6) {
-        onView(withId(R.id.list)).perform(ViewActions.swipeUp())
-        Thread.sleep(600)
-      }
-
-    itemCount = fragment.recyclerView?.layoutManager?.itemCount
-    assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
+    for (i in 0..2) {
+      var itemCount = fragment.recyclerView?.layoutManager?.itemCount
+      assertThat(itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
+      if (itemCount != null)
+        onView(withId(R.id.list)).perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(itemCount - 4))
+      Thread.sleep(300)
+      onView(withId(R.id.list)).perform(ViewActions.swipeUp())
+      Thread.sleep(300)
+      onView(withId(R.id.list)).perform(ViewActions.swipeUp())
+      Thread.sleep(300)
+    }
   }
 
   @Test
@@ -89,7 +91,7 @@ class NewsFeedActivityTest {
     val random = Random()
     var itemCount = fragment.recyclerView?.layoutManager?.itemCount
     if (itemCount == null || itemCount == 0) return
-    for (i in 0..4) {
+    for (i in 0..2) {
       Thread.sleep(300)
       var itemIndex = random.nextInt(itemCount - 1)
       var newsItem = fragment.newsResponse.displayNews.get(itemIndex)
