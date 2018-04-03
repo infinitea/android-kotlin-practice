@@ -4,6 +4,7 @@ import android.support.test.espresso.Espresso.onView
 import android.support.test.espresso.Espresso.pressBack
 import android.support.test.espresso.IdlingRegistry
 import android.support.test.espresso.action.ViewActions
+import android.support.test.espresso.action.ViewActions.*
 import android.support.test.espresso.assertion.ViewAssertions.matches
 import android.support.test.espresso.contrib.RecyclerViewActions
 import android.support.test.espresso.matcher.ViewMatchers.*
@@ -94,7 +95,7 @@ class NewsFeedActivityTest {
     for (i in 0..2) {
       Thread.sleep(300)
       var itemIndex = random.nextInt(itemCount - 1)
-      var newsItem = fragment.newsResponse.displayNews.get(itemIndex)
+      var newsItem = fragment.newsResponse.displayNews[itemIndex]
 
       onView(withId(R.id.list)).perform(RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(itemIndex, ViewActions.click()))
       Thread.sleep(300)
@@ -102,5 +103,25 @@ class NewsFeedActivityTest {
       onView(allOf(withParent(withId(R.id.detail_root)), withId(R.id.description), isDisplayed())).check(matches(withText(newsItem.description)))
       pressBack()
     }
+  }
+
+  @Test
+  fun checkSearch() {
+    var fragment: NewsItemFragment? = mActivityRule.activity.supportFragmentManager.findFragmentByTag("NewsItemFragment") as NewsItemFragment
+    if (fragment == null || fragment.recyclerView?.visibility != View.VISIBLE) return
+
+    Thread.sleep(500)
+
+    onView(withId(android.support.design.R.id.search_src_text)).perform(click()).perform(typeText("facebook"))
+    assertThat(fragment.recyclerView?.layoutManager?.itemCount, equalTo(fragment.newsResponse.displayNews.size))
+    Thread.sleep(300)
+
+    onView(withId(android.support.design.R.id.search_src_text)).perform(click()).perform(clearText())
+    assertThat(fragment.recyclerView?.layoutManager?.itemCount, equalTo(fragment.newsResponse.displayNews.size + if (fragment.newsResponse.nextPage.isNotEmpty()) 1 else 0))
+    Thread.sleep(300)
+
+    onView(withId(android.support.design.R.id.search_src_text)).perform(click()).perform(typeText("lllaewqqwrwe")) // empty case
+    onView(withId(R.id.list)).check(matches(withChildViewCount(0, null)))
+    Thread.sleep(500)
   }
 }
