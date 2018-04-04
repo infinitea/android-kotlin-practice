@@ -9,7 +9,6 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,7 +50,6 @@ class NewsItemFragment : Fragment() {
     var lastVisibleItem: Int? = 0
     override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
       super.onScrollStateChanged(recyclerView, newState)
-      Log.d("TEST", "onScrollStateChanged state = " + newState)
       if ((recyclerView?.adapter as NewsRecyclerViewAdapter).displayLoading && newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem!! + 1 == recyclerView.adapter?.itemCount) {
         startRequestNewsFeed(newsResponse.nextPage)
       }
@@ -59,27 +57,19 @@ class NewsItemFragment : Fragment() {
 
     override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
       super.onScrolled(recyclerView, dx, dy)
-      Log.d("TEST", "onScrolled x y = " + dx + " " + dy)
       val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
       lastVisibleItem = layoutManager.findLastVisibleItemPosition()
     }
   }
 
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    mColumnCount = arguments?.getInt(ARG_COLUMN_COUNT) ?: 1
-  }
-
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-    val view = inflater.inflate(R.layout.fragment_news_item_list, container, false)
-    return view
+    return inflater.inflate(R.layout.fragment_news_item_list, container, false)
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
-    list.adapter
+
+    mColumnCount = arguments?.getInt(ARG_COLUMN_COUNT) ?: 1
     error_view.visibility = View.INVISIBLE
     recyclerView = view.findViewById(R.id.list)
     val context = view.context
@@ -89,31 +79,37 @@ class NewsItemFragment : Fragment() {
       recyclerView?.layoutManager = GridLayoutManager(context, mColumnCount)
     }
 
-    refreshLayout = view.findViewById(R.id.refresh_layout)
-    refreshLayout?.setOnRefreshListener { startRequestNewsFeed(null) }
+    refreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.refresh_layout).apply {
+      setOnRefreshListener { startRequestNewsFeed(null) }
+    }
+//    refreshLayout?.setOnRefreshListener { startRequestNewsFeed(null) }
 
     if (savedInstanceState != null) {
       newsResponse = savedInstanceState.getSerializable(STATE_NEWS_DATA) as NewsResponse
       var scrolledPosition = savedInstanceState.getInt(STATE_CURRENT_SCROLL_POSITION, 0)
-      recyclerView?.adapter = NewsRecyclerViewAdapter(newsResponse.displayNews, mListener)
-      recyclerView?.scrollToPosition(scrolledPosition)
+      recyclerView?.let {
+        it.adapter = NewsRecyclerViewAdapter(newsResponse.displayNews, mListener)
+        it.scrollToPosition(scrolledPosition)
+      }
     } else {
       startRequestNewsFeed(null)
     }
 
-    searchView = view.findViewById(R.id.search_view)
-    searchView?.isEnabled = false
-    searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-      override fun onQueryTextSubmit(query: String?): Boolean {
-        updateSearchText(query)
-        return false
-      }
+    searchView = view.findViewById<SearchView>(R.id.search_view).apply {
+      isEnabled = false
+      setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        override fun onQueryTextSubmit(query: String?): Boolean {
+          updateSearchText(query)
+          return false
+        }
 
-      override fun onQueryTextChange(newText: String?): Boolean {
-        updateSearchText(newText)
-        return false
-      }
-    })
+        override fun onQueryTextChange(newText: String?): Boolean {
+          updateSearchText(newText)
+          return false
+        }
+      })
+
+    }
   }
 
   private fun updateSearchText(text: String?) {
