@@ -12,11 +12,12 @@ import java.io.Serializable
 
 data class NewsItem(var title: String = "", var description: String = "", var urlToImage: String = "", var publishedAt: String = "") : Serializable
 
-data class NewsResponse(var nextPage: String = "", var news: MutableList<NewsItem> = ArrayList(), var displayNews: MutableList<NewsItem> = news) : Serializable {
+data class NewsResponse(var nextPage: String = "", var news: MutableList<NewsItem> = ArrayList(), var displayNews: MutableList<NewsItem> = news,
+    var filterString: String = "") : Serializable {
 
-  var filterString: String = ""
 
-  fun filterNews(){
+
+  fun filterNews() {
     displayNews = when (filterString.isEmpty()) {
       true -> news
       else -> news.filter {
@@ -25,13 +26,12 @@ data class NewsResponse(var nextPage: String = "", var news: MutableList<NewsIte
     }
   }
 
-  fun filterNewsIfChanged(filter: String): Boolean{
+  fun filterNewsIfChanged(filter: String): Boolean {
     return if (filter != (filterString)) {
-        filterString = filter
-        filterNews()
-        true
-      }
-      else false
+      filterString = filter
+      filterNews()
+      true
+    } else false
   }
 
   companion object {
@@ -40,10 +40,12 @@ data class NewsResponse(var nextPage: String = "", var news: MutableList<NewsIte
       disposable = newsFeedService.getNewsFeed(url).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(
           { result ->
             successCallback(result)
-            EspressoIdlingResource.decrement() },
+            EspressoIdlingResource.decrement()
+          },
           { error ->
             errorCallback(error)
-            EspressoIdlingResource.decrement() }
+            EspressoIdlingResource.decrement()
+          }
       )
     }
   }
